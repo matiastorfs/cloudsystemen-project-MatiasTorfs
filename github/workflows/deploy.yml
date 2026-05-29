@@ -1,0 +1,36 @@
+name: Deploy website naar Azure VM
+
+on:
+  push:
+    branches:
+      - main  # Verander dit naar 'master' als jouw hoofdvertakking zo heet
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Code ophalen uit GitHub
+      uses: actions/checkout@v4
+
+    - name: Inloggen op Azure VM en container updaten
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          mkdir -p ~/schoolproject
+          
+          cd ~/schoolproject
+          
+          curl -L -H "Authorization: token ${{ github.token }}" https://api.github.com/repos/${{ github.repository }}/tarball/main -o repo.tar.gz
+          tar -xzf repo.tar.gz --strip-components=1
+          rm repo.tar.gz
+
+          sudo docker stop website-container || true
+          sudo docker rm website-container || true
+
+          sudo docker build -t schoolproject-live .
+
+          sudo docker run -d --name website-container -p 8080:80 --restart unless-stopped schoolproject-live
