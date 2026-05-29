@@ -3,7 +3,7 @@ name: Deploy website naar Azure VM
 on:
   push:
     branches:
-      - main  # Verander dit naar 'master' als jouw hoofdvertakking zo heet
+      - main
 
 jobs:
   deploy:
