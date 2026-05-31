@@ -22,7 +22,6 @@ jobs:
         script: |
           mkdir -p ~/schoolproject
           
-          # 2. Ga naar die map
           cd ~/schoolproject
           
           if [ -d ".git" ]; then
