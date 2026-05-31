@@ -20,13 +20,11 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          # 1. Maak een mapje voor het project op de server als dat er nog niet is
           mkdir -p ~/schoolproject
           
           # 2. Ga naar die map
           cd ~/schoolproject
           
-          # 3. Omdat de repo PUBLIC is, halen we de code rechtstreeks binnen via Git
           if [ -d ".git" ]; then
             git pull origin main
           else
@@ -36,12 +34,9 @@ jobs:
             cd schoolproject
           fi
 
-          # 4. Stop de oude Docker-container als die er al was (voorkomt poort-conflicten)
           sudo docker stop website-container || true
           sudo docker rm website-container || true
 
-          # 5. Bouw de gloednieuwe Docker-image op basis van je Dockerfile
           sudo docker build -t schoolproject-live .
 
-          # 6. Start de container op poort 8080 (intern op de server)
           sudo docker run -d --name website-container -p 8080:80 --restart unless-stopped schoolproject-live
